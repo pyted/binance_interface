@@ -13,10 +13,10 @@ class TradeClose(TradeOrder, TradeQuantityAndPrice):
     def close_limit(
             self,
             symbol: str,
+            quantity: Union[int, float, str, origin_float, origin_int],
             base_asset: str = None,
             closePrice: Union[int, float, str, origin_float, origin_int, None] = None,
             tpRate: Union[int, float, None] = None,
-            quantity: Union[int, float, str, origin_float, origin_int] = 'all',
             meta: dict = {},
             block: bool = True,
             timeout: Union[int, float] = 60,
@@ -29,6 +29,12 @@ class TradeClose(TradeOrder, TradeQuantityAndPrice):
     ) -> dict:
         '''
         :param symbol: 产品
+        :param quantity: 下单数量，支持类型：字符串、普通数值、origin类型
+            1. 字符串:
+                - 'all'       获取产品全部可卖出数量
+                - 数值型字符串  不会进行quantity的圆整
+            2. 普通数值:   圆整后转换为字符串
+            3. origin:   使用quantity.origin()
         :param base_asset: 交易产品的基础货币
             例如symbol='BTCUSDT' 其中的基础货币base_asset为'USDT'
             仅在quantity = 'all' 的时候需要填写
@@ -38,12 +44,6 @@ class TradeClose(TradeOrder, TradeQuantityAndPrice):
             优先级 closePrice >> tpRate
             closePrice为空，tpRate不为空，会计算出挂单价格
                 -> closePrice = askPrice * (1 + abs(tpRate))
-        :param quantity: 下单数量，支持类型：字符串、普通数值、origin类型
-            1. 字符串:
-                - 'all'       获取产品全部可卖出数量
-                - 数值型字符串  不会进行quantity的圆整
-            2. 普通数值:   圆整后转换为字符串
-            3. origin:   使用quantity.origin()
         :param meta: 回调函数传递参数
         :param block: 是否堵塞
         :param timeout: 订单超时时间 （秒)
@@ -287,8 +287,8 @@ class TradeClose(TradeOrder, TradeQuantityAndPrice):
     def close_market(
             self,
             symbol: str,
+            quantity: Union[int, float, str, origin_float, origin_int],
             base_asset: str = None,
-            quantity: Union[int, float, str, origin_float, origin_int] = 'all',
             meta: dict = {},
             timeout: Union[int, float] = 60,
             delay: Union[int, float] = 0.2,
@@ -300,15 +300,15 @@ class TradeClose(TradeOrder, TradeQuantityAndPrice):
     ) -> dict:
         '''
         :param symbol: 产品
-        :param base_asset: 交易产品的基础货币
-            例如symbol='BTCUSDT' 其中的基础货币base_asset为'USDT'
-            仅在quantity = 'all' 的时候需要填写
         :param quantity: 下单数量，支持类型：字符串、普通数值、origin类型
             1. 字符串:
                 - 'all'       获取产品全部可卖出数量
                 - 数值型字符串  不会进行quantity的圆整
             2. 普通数值:   圆整后转换为字符串
             3. origin:   使用quantity.origin()
+        :param base_asset: 交易产品的基础货币
+            例如symbol='BTCUSDT' 其中的基础货币base_asset为'USDT'
+            仅在quantity = 'all' 的时候需要填写
         :param meta: 回调函数传递参数
         :param timeout: 订单超时时间 （秒)
         :param delay: 检测订单状态的间隔 (秒)

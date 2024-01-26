@@ -125,6 +125,7 @@ class TradeQuantityAndPrice(TradeCMBase):
             openPrice: Union[int, float],
             openMoney: Union[int, float],
             symbol: str,
+            contractSize: str = None,
             stepSize: str = None,
             leverage: int = 1,
             minQty: str = None,
@@ -135,6 +136,7 @@ class TradeQuantityAndPrice(TradeCMBase):
         :param openPrice: 开仓价格
         :param openMoney: 开仓金额
         :param symbol: 合约产品
+        :param contractSize: 合约乘数
         :param stepSize: 订单最小数量间隔
         :param leverage: 杠杆数量
         :param minQty: 最小数量
@@ -144,8 +146,9 @@ class TradeQuantityAndPrice(TradeCMBase):
 
         stepSize minQty maxQty任意为空，通过market.exchangeInfo获取交易规则与交易对信息
         '''
+
         # stepSize minQty maxQty
-        if stepSize in [None, ''] or minQty in [None, ''] or maxQty in [None, '']:
+        if stepSize in [None, ''] or minQty in [None, ''] or maxQty in [None, ''] or contractSize in [None, '']:
             exchangeInfo = self._market.get_exchangeInfo(
                 symbol=symbol,
                 expire_seconds=expire_seconds
@@ -158,8 +161,9 @@ class TradeQuantityAndPrice(TradeCMBase):
                 minQty = exchangeInfo['data']['filter']['LOT_SIZE']['minQty']
             if maxQty in [None, '']:
                 maxQty = exchangeInfo['data']['filter']['LOT_SIZE']['maxQty']
+            contractSize = exchangeInfo['data']['contractSize']
         # 未圆整的下单数量
-        quantity = openMoney * leverage / openPrice
+        quantity = openMoney * leverage * openPrice / contractSize
         # 返回圆整结果
         return self.round_quantity(
             quantity=quantity,

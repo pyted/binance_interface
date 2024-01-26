@@ -16,7 +16,7 @@ class ExchangeInfo(MarketBase):
         https://binance-docs.github.io/apidocs/delivery/cn/#185368440e
     '''
 
-    # 通过缓存获取交易规则与交易对
+    # 以缓存的方式获取全部产品的交易规则与交易对
     # Weight: 现货10 合约1 使用缓存0
     def get_exchangeInfos(
             self,
@@ -48,7 +48,7 @@ class ExchangeInfo(MarketBase):
         # 返回缓存数据
         return getattr(self, '_exchangeInfo_caches')[0]
 
-    # 获取一个产品的交易规则与交易对
+    # 以缓存的方式获取一个产品的交易规则与交易对
     # Weight: 现货10 合约1 使用缓存0
     def get_exchangeInfo(
             self,

@@ -16,8 +16,22 @@ class AccountCM():
         return self.cmAPI.accountTrade.get_account(**to_local(locals()))
 
     # 获取全部产品余额 Weight: 1
-    def get_balances(self, recvWindow: int = ''):
-        return self.cmAPI.accountTrade.get_balance(**to_local(locals()))
+    def get_balances(self, assets=[]):
+        '''
+        :param asset: 获取的货币，空表示全部
+        :param recvWindow:
+        :return:
+        '''
+        api_balance_result = self.cmAPI.accountTrade.get_balance()
+        if not api_balance_result['code'] == 200:
+            return api_balance_result
+        balances_result = {'code': 200, 'data': [], 'msg': ''}
+        for balance in api_balance_result['data']:
+            this_asset = balance['asset']
+            if assets and this_asset not in assets:
+                continue
+            balances_result['data'].append(balance)
+        return balances_result
 
     # 获取单个产品余额 Weight: 1
     def get_balance(self, asset: str = '', symbol: str = '', base_asset: str = ''):
@@ -56,6 +70,23 @@ class AccountCM():
             }
             return result
 
+    # 获取全部产品余额字典 Weight: 1
+    def get_balancesMap(self, assets=[]):
+        '''
+        :param assets: 获取的货币，空表示全部
+        :return:
+        '''
+        balances_result = self.get_balances(assets=assets)
+        if not balances_result['code'] == 200:
+            return balances_result
+        balancesMap = {}
+        for balance in balances_result['data']:
+            balance: dict
+            asset = balance['asset']
+            balancesMap[asset] = balance
+        result = {'code': 200, 'data': balancesMap, 'msg': ''}
+        return result
+
     # 调整开仓杠杆 Weight : 1
     def set_leverage(
             self,
@@ -92,7 +123,11 @@ class AccountCM():
         return result
 
     # 获取全部产品的持仓信息 Weight: 5
-    def get_positions(self):
+    def get_positions(self,symbols=[]):
+        '''
+        :param symbols: 获取的产品列表，空表示全部
+        :return:
+        '''
         result = self.get_account()
         if result['code'] != 200:
             return result
@@ -109,6 +144,9 @@ class AccountCM():
             }
             for v in result['data']['positions']:
                 if 'positionAmt' in v.keys() and float(v['positionAmt']) > 0:
+                    this_symbol = v['symbol']
+                    if symbols and this_symbol not in symbols:
+                        continue
                     if v['isolated'] == True:
                         mode = 'ISOLATED'
                     else:
@@ -138,5 +176,33 @@ class AccountCM():
                 for posSide_data in posSide_datas:
                     if posSide_data['symbol'] == symbol:
                         positions[mode][posSide] = posSide_data
+        result['data'] = positions
+        return result
+
+
+    # 获取全部产品的持仓信息字典 Weight: 5
+    def get_positionsMap(self, symbols=[]) -> dict:
+        '''
+        :param symbols: 获取的产品列表，空表示全部
+        :return:
+        '''
+        result = self.get_positions(symbols=symbols)
+        if result['code'] != 200:
+            return result
+        positions = {
+            'CROSSED': {
+                'LONG': {},
+                'SHORT': {},
+            },
+            'ISOLATED': {
+                'LONG': {},
+                'SHORT': {},
+            }
+        }
+        for mode, mode_data in result['data'].items():
+            for posSide, posSide_datas in mode_data.items():
+                for posSide_data in posSide_datas:
+                    symbol = posSide_data['symbol']
+                    positions[mode][posSide][symbol] = posSide_data
         result['data'] = positions
         return result

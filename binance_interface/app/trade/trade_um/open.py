@@ -2,10 +2,10 @@ from typing import Literal, Union
 import traceback
 from threading import Thread
 from paux.digit import origin_float, origin_int
-from binance_trade import code
-from binance_trade import exception
-from binance_trade.binance_um.trade.order import TradeOrder
-from binance_trade.binance_um.trade.quantity_and_price import TradeQuantityAndPrice
+from binance_interface.app import code
+from binance_interface.app import exception
+from binance_interface.app.trade.trade_um.order import TradeOrder
+from binance_interface.app.trade.trade_um.quantity_and_price import TradeQuantityAndPrice
 
 
 class TradeOpen(TradeOrder, TradeQuantityAndPrice):

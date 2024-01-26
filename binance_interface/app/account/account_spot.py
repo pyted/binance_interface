@@ -15,16 +15,23 @@ class AccountSPOT():
         return self.spotAPI.account.get_account(**to_local(locals()))
 
     # 获取全部现货余额 Weight: 20
-    def get_balances(self):
-        account_result = self.get_account()
-        if account_result['code'] != 200:
-            return account_result
-        result = {
-            'code': 200,
-            'data': account_result['data']['balances'],
-            'msg': ''
-        }
-        return result
+    def get_balances(self, assets=[]):
+        '''
+        :param assets:获取的货币，空表示全部
+        :return:
+        '''
+        api_account_result = self.get_account()
+        if api_account_result['code'] != 200:
+            return api_account_result
+
+        balances_result = {'code': 200, 'data': [], 'msg': ''}
+
+        for balance in api_account_result['data']['balances']:
+            this_asset = balance['asset']
+            if assets and this_asset not in assets:
+                continue
+            balances_result['data'].append(balance)
+        return balances_result
 
     # 获取单个现货余额 Weight: 20
     def get_balance(self, asset: str = '', symbol: str = '', base_asset: str = ''):
@@ -62,3 +69,20 @@ class AccountSPOT():
                 'msg': msg,
             }
             return result
+
+    # 获取全部现货余额字典 Weight: 20
+    def get_balancesMap(self, assets=[]):
+        '''
+        :param assets:获取的货币，空表示全部
+        :return:
+        '''
+        balances_result = self.get_balances(assets=assets)
+        if not balances_result['code'] == 200:
+            return balances_result
+        balancesMap = {}
+        for balance in balances_result['data']:
+            balance: dict
+            asset = balance['asset']
+            balancesMap[asset] = balance
+        result = {'code': 200, 'data': balancesMap, 'msg': ''}
+        return result

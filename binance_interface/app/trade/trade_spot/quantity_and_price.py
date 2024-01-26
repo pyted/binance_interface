@@ -118,7 +118,7 @@ class TradeQuantityAndPrice(TradeSPOTBase):
             round_price_result['msg'] = f'symbol={symbol} ' + round_price_result['msg']
         return round_price_result
 
-    # 根据合约产品的开仓金额、杠杆倍数、开仓价格获取购买数量
+    # 根据产品的开仓金额、杠杆倍数、开仓价格获取购买数量
     # Weight 0 | 1
     def get_quantity(
             self,

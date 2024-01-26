@@ -1,7 +1,10 @@
 from typing import Literal, Union
+from binance_interface.app import exception
 from binance_interface.app.trade.trade_um._base import TradeUMBase
 from paux.param import to_local
 import time
+import datetime
+import paux
 
 
 class TradeOrder(TradeUMBase):
@@ -96,9 +99,11 @@ class TradeOrder(TradeUMBase):
         return self.umAPI.accountTrade.get_order(**to_local(locals()))
 
     # 查看当前全部挂单 (USER_DATA) Weight 1 | 40
-    def get_openOrders(
+    def get_orders_pending(
             self,
             symbol: str = '',
+            start: Union[str, int, float, datetime.datetime] = '',
+            end: Union[str, int, float, datetime.datetime] = '',
             recvWindow: int = ''
     ):
         '''
@@ -112,26 +117,113 @@ class TradeOrder(TradeUMBase):
             带symbol 1
             不带symbol 40
         '''
-        return self.umAPI.accountTrade.get_openOrders(**to_local(locals()))
+        result = self.umAPI.accountTrade.get_openOrders(symbol=symbol, recvWindow=recvWindow)
+        if not result['code'] == 200:
+            return result
+        if start:
+            start = paux.date.to_ts(start, timezone=self.timezone)
+        if end:
+            end = paux.date.to_ts(end, timezone=self.timezone)
+        data2 = []
+        for data in result['data']:
+            if start and not data['time'] >= start:
+                continue
+            if end and not data['time'] <= end:
+                continue
+            data2.append(data)
+        result['data'] = data2
+        return result
 
-    # 查询当前挂单 (USER_DATA) Weight : 1
-    def get_openOrder(
+    def get_orders_pending_open(
             self,
-            symbol: str,
-            orderId: int = '',
-            origClientOrderId: str = '',
-            recvWindow: int = ''
+            symbol: str = '',
+            positionSide: str = '',
+            start: Union[str, int, float, datetime.datetime] = '',
+            end: Union[str, int, float, datetime.datetime] = '',
+            recvWindow: int = '',
     ):
-        '''
-        https://binance-docs.github.io/apidocs/futures/cn/#user_data-4
 
-        Name             	Type	Mandatory	Description
-        symbol           	str 	YES      	交易对
-        orderId          	int 	NO       	系统订单号
-        origClientOrderId	str 	NO       	用户自定义的订单号
-        recvWindow       	int 	NO
-        '''
-        return self.umAPI.accountTrade.get_openOrder(**to_local(locals()))
+        # 验证positionSide
+        positionSide = positionSide.upper()
+        if positionSide not in ['LONG', 'SHORT', '']:
+            msg = 'positionSide must in [LONG","SHORT",""].'
+            raise exception.ParamException(msg)
+        if positionSide == 'LONG':  # 买入开多
+            side = 'BUY'
+        elif positionSide == 'SHORT':  # 卖出开空
+            side = 'SELL'
+        else:
+            side = None
+
+        result = self.get_orders_pending(
+            symbol=symbol, start=start, end=end, recvWindow=recvWindow
+        )
+        if not result['code'] == 200:
+            return result
+
+        # 按照posSide与side筛选
+        datas_open = []
+        for data in result['data']:
+            if positionSide:
+                if data['positionSide'] == positionSide and data['side'] == side:
+                    datas_open.append(data)
+            else:
+                if (
+                        # 买入开多
+                        ((data['positionSide'] == 'LONG') and (data['side'] == 'BUY')) or
+                        # 卖出开空
+                        ((data['positionSide'] == 'SHORT') and (data['side'] == 'SELL'))
+                ):
+                    datas_open.append(data)
+
+        result['data'] = datas_open
+        return result
+
+    def get_orders_pending_close(
+            self,
+            symbol: str = '',
+            positionSide: str = '',
+            start: Union[str, int, float, datetime.datetime] = '',
+            end: Union[str, int, float, datetime.datetime] = '',
+            recvWindow: int = '',
+    ):
+
+        # 验证posSide
+        positionSide = positionSide.upper()
+        if positionSide not in ['LONG', 'SHORT', '']:
+            msg = 'positionSide must in [LONG","SHORT",""].'
+            raise exception.ParamException(msg)
+        # 通过posSide选择side
+        if positionSide == 'LONG':  # 卖出平多
+            side = 'SELL'
+        elif positionSide== 'SHORT':  # 买入平空
+            side = 'BUY'
+        else:
+            positionSide = None
+            side = None
+
+        result = self.get_orders_pending(
+            symbol=symbol, start=start, end=end, recvWindow=recvWindow
+        )
+        if not result['code'] == 200:
+            return result
+
+        # 按照posSide与side筛选
+        datas_open = []
+        for data in result['data']:
+            if positionSide:
+                if data['positionSide'] == positionSide and data['side'] == side:
+                    datas_open.append(data)
+            else:
+                if (
+                        # 卖出平多
+                        ((data['positionSide'] == 'LONG') and (data['side'] == 'SELL')) or
+                        # 买入平空
+                        ((data['positionSide'] == 'SHORT') and (data['side'] == 'BUY'))
+                ):
+                    datas_open.append(data)
+        result['data'] = datas_open
+        return result
 
     # 撤销订单 (TRADE) Weight : 1
     def cancel_order(

@@ -1,3 +1,5 @@
+import datetime
+import paux.date
 from typing import Union
 from binance_interface.app.trade.trade_spot._base import TradeSPOTBase
 from paux.param import to_local
@@ -63,7 +65,7 @@ class TradeOrder(TradeSPOTBase):
             GTX:    无法成为挂单方就撤销
         '''
 
-        return self.spotAPI.accountTrade.set_order(**to_local(locals()))
+        return self.spotAPI.trade.set_order(**to_local(locals()))
 
     # 查询订单 (USER_DATA) Weight : 2
     def get_order(
@@ -90,41 +92,85 @@ class TradeOrder(TradeSPOTBase):
                 并且
             订单生成时间 + 7天 < 当前时间
         '''
-        return self.spotAPI.accountTrade.get_order(**to_local(locals()))
+        return self.spotAPI.trade.get_order(**to_local(locals()))
 
-    # 查看当前全部挂单 (USER_DATA) Weight 1 | 40
-    def get_openOrders(
+    # 查看当前挂单 (USER_DATA) Weight 1 | 80
+    def get_orders_pending(
             self,
             symbol: str = '',
-            recvWindow: int = ''
+            start: Union[str, int, float, datetime.datetime] = '',
+            end: Union[str, int, float, datetime.datetime] = '',
+            recvWindow: int = '',
     ):
         '''
-        https://binance-docs.github.io/apidocs/spot/cn/#user_data-21
-
-        Name      	Type	Mandatory	Description
-        symbol    	str 	NO
-        recvWindow	int 	NO
+        :param symbol: 产品ID
+        :param start: 订单起始时间需>=start
+        :param end: 订单终止时间需<=end
 
         权重：
-            带symbol 1
-            不带symbol 40
+            6   单一交易对
+            80  交易对参数缺失
         '''
-        return self.spotAPI.accountTrade.get_openOrders(**to_local(locals()))
+        result = self.spotAPI.trade.get_openOrders(
+            symbol=symbol,recvWindow=recvWindow,
+        )
+        if not result['code'] == 200:
+            return result
+        if start:
+            start = paux.date.to_ts(start, timezone=self.timezone)
+        if end:
+            end = paux.date.to_ts(end, timezone=self.timezone)
+        data2 = []
+        for data in result['data']:
+            if start and not data['time'] >= start:
+                continue
+            if end and not data['time'] <= end:
+                continue
+            data2.append(data)
+        result['data'] = data2
+        return result
 
-    # 查询当前挂单 (USER_DATA) Weight : 1
-    def get_openOrder(
+    # 查看当前购买挂单 (USER_DATA) Weight 1 | 80
+    def get_orders_pending_open(
             self,
-            symbol: str,
-            recvWindow: int = ''
+            symbol: str = '',
+            start: Union[str, int, float, datetime.datetime] = '',
+            end: Union[str, int, float, datetime.datetime] = '',
+            recvWindow: int = '',
     ):
-        '''
-        https://binance-docs.github.io/apidocs/spot/cn/#user_data-21
+        result = self.get_orders_pending(
+            symbol=symbol, start=start, end=end, recvWindow=recvWindow
+        )
+        if not result['code'] == 200:
+            return result
+        SIDE = 'BUY'
+        data_open = []
+        for data in result['data']:
+            if data['side'] == SIDE:
+                data_open.append(data)
+        result['data'] = data_open
+        return result
 
-        Name      	Type	Mandatory	Description
-        symbol    	str 	NO
-        recvWindow	int 	NO
-        '''
-        return self.spotAPI.accountTrade.get_openOrders(**to_local(locals()))
+    # 查看当前卖出挂单 (USER_DATA) Weight 1 | 80
+    def get_orders_pending_close(
+            self,
+            symbol: str = '',
+            start: Union[str, int, float, datetime.datetime] = '',
+            end: Union[str, int, float, datetime.datetime] = '',
+            recvWindow: int = '',
+    ):
+        result = self.get_orders_pending(
+            symbol=symbol, start=start, end=end, recvWindow=recvWindow
+        )
+        if not result['code'] == 200:
+            return result
+        SIDE = 'SELL'
+        data_open = []
+        for data in result['data']:
+            if data['side'] == SIDE:
+                data_open.append(data)
+        result['data'] = data_open
+        return result
 
     # 撤销订单 (TRADE) Weight : 1
     def cancel_order(
@@ -147,7 +193,7 @@ class TradeOrder(TradeSPOTBase):
 
         orderId 与 origClientOrderId 必须至少发送一个
         '''
-        return self.spotAPI.accountTrade.cancel_order(**to_local(locals()))
+        return self.spotAPI.trade.cancel_order(**to_local(locals()))
 
     # 等待订单成交
     def wait_order_FILLED(self, symbol: str, orderId: int = '', origClientOrderId: str = '', timeout=60, delay=0.2):
@@ -165,4 +211,3 @@ class TradeOrder(TradeSPOTBase):
             if time.time() - start_time >= timeout:
                 return order_result
             time.sleep(delay)
-

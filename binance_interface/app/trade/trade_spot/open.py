@@ -3,7 +3,6 @@ import traceback
 from threading import Thread
 from paux.digit import origin_float, origin_int
 from binance_interface.app import code
-from binance_trade import exception
 from binance_interface.app.trade.trade_spot.order import TradeOrder
 from binance_interface.app.trade.trade_spot.quantity_and_price import TradeQuantityAndPrice
 

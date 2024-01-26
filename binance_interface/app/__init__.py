@@ -29,7 +29,7 @@ class BinanceUM():
         self.account = AccountUM(key=key, secret=secret, proxies=proxies, proxy_host=proxy_host)
         self.market = MarketUM(key=key, secret=secret, timezone=timezone, proxies=proxies, proxy_host=proxy_host)
         self.trade = TradeUM(key=key, secret=secret, timezone=timezone, account=self.account, market=self.market,
-                               proxies=proxies, proxy_host=proxy_host)
+                             proxies=proxies, proxy_host=proxy_host)
         self.timezone = timezone
 
 
@@ -44,5 +44,10 @@ class BinanceCM():
         self.account = AccountCM(key=key, secret=secret, proxies=proxies, proxy_host=proxy_host)
         self.market = MarketCM(key=key, secret=secret, timezone=timezone, proxies=proxies, proxy_host=proxy_host)
         self.trade = TradeCM(key=key, secret=secret, timezone=timezone, account=self.account, market=self.market,
-                               proxies=proxies, proxy_host=proxy_host)
+                             proxies=proxies, proxy_host=proxy_host)
         self.timezone = timezone
+
+
+AppSPOT = BinanceSPOT
+AppUM = BinanceUM
+AppCM = BinanceCM

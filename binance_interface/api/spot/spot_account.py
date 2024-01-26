@@ -16,6 +16,7 @@ class _SPOTAccountEndpoints():
 
 class SPOTAccount(Client):
 
+
     # 账户信息 (USER_DATA)
     def get_account(self,recvWindow:int = '',timestamp:int = '',proxies={},proxy_host:str=None):
         '''
