@@ -3,10 +3,10 @@
 安装：
 
 ```cmd
-pip3 install binance_interface==2.0.2
+pip3 install binance_interface==2.0.3
 ```
 
-- 更新日期：2024-01-26
+- 更新日期：2024-02-08
 - 同步官方文档全部Rest接口
 - 添加代理IP与代理服务器转发功能
 
