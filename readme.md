@@ -1,4 +1,4 @@
-## Binance_interface 2.0.2
+## Binance_interface 2.0.3
 
 安装：
 
@@ -19,7 +19,6 @@ pip3 install binance_interface==2.0.3
 - 1.5 API U本位合约交易账户.ipynb
 - 1.6 API 币本位合约交易账户.ipynb
 - 2.1 APP 现货交易账户.ipynb
-- 2.10 APP 现货交易-市单价平仓.ipynb
 - 2.2 APP 现货行情-交易规则信息.ipynb
 - 2.3 APP 现货行情-实时行情.ipynb
 - 2.4 APP 现货行情-历史K线.ipynb
@@ -28,6 +27,7 @@ pip3 install binance_interface==2.0.3
 - 2.7 APP 现货交易-限价单开仓.ipynb
 - 2.8 APP 现货交易-市价单开仓.ipynb
 - 2.9 APP 现货交易-限单价平仓.ipynb
+- 2.10 APP 现货交易-市单价平仓.ipynb
 - 3.1 APP U本位合约交易账户.ipynb
 - 3.2 APP U本位合约行情-交易规则信息.ipynb
 - 3.3 APP U本位合约行情-实时行情.ipynb
