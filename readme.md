@@ -10,14 +10,16 @@ pip3 install binance_interface==2.0.3
 - 同步官方文档全部Rest接口
 - 添加代理IP与代理服务器转发功能
 
-使用教程请参考example
+使用教程请参考examples
 
-- 1.1 API 现货行情接口.ipynb
-- 1.2 API U本位合约行情.ipynb
-- 1.3 API 币本位合约行情.ipynb
-- 1.4 API 现货交易账户.ipynb
-- 1.5 API U本位合约交易账户.ipynb
-- 1.6 API 币本位合约交易账户.ipynb
+- 1.1 Binance_Interface安装与介绍
+- 1.2 API函数接口总览
+- 1.3 API 现货行情接口.ipynb
+- 1.4 API U本位合约行情.ipynb
+- 1.5 API 币本位合约行情.ipynb
+- 1.6 API 现货交易账户.ipynb
+- 1.7 API U本位合约交易账户.ipynb
+- 1.8 API 币本位合约交易账户.ipynb
 - 2.1 APP 现货交易账户.ipynb
 - 2.2 APP 现货行情-交易规则信息.ipynb
 - 2.3 APP 现货行情-实时行情.ipynb
