@@ -412,7 +412,7 @@ class HistoryCandle(MarketBase):
         :param bar: 时间粒度
         :param valid_interval: 是否验证时间间隔
 
-        如论end是有有值，都会验证数据的时间终点与长度
+        如论end是否有值，都会验证数据的时间终点与长度
         '''
         # 终止时间戳end_ts
         if end:

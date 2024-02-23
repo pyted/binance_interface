@@ -445,6 +445,13 @@ class CandleServer():
             )
             this_code = update_history_candle_result['code']
             if this_code != 200:
+                if this_code == code.CANDLE_END_ERROR:
+                    # 允许更新后的candle与最新时间相差1个时间粒度
+                    try:
+                        if latest_ts - candle[-1, 0] <= _interval.get_interval(self.rule.BAR):
+                            continue
+                    except:
+                        pass
                 msg = '[update_history_candle] code={code} symbol={symbol} msg={msg}'.format(
                     symbol=symbol,
                     code=this_code,

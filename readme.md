@@ -1,4 +1,4 @@
-## Binance_interface 2.0.3
+## Binance_interface 2.0.4
 
 安装：
 
@@ -6,9 +6,7 @@
 pip3 install binance_interface==2.0.3
 ```
 
-- 更新日期：2024-02-08
-- 同步官方文档全部Rest接口
-- 添加代理IP与代理服务器转发功能
+
 
 使用教程请参考examples
 
@@ -53,3 +51,13 @@ pip3 install binance_interface==2.0.3
 - 5.1 APP K线服务 下载历史K线.ipynb
 - 5.2 APP K线服务 每日定时下载昨日历史K线.ipynb
 - 5.3 APP K线服务 维护实时历史K线.ipynb
+
+### v2.0.3 
+
+- 更新日期：2024-02-08
+- 同步官方文档全部Rest接口
+- 添加代理IP与代理服务器转发功能
+
+### v2.0.4
+
+- 修正candle_map实时K线服务因各个产品的最新K线数据更新时间的不同而造成的candle验证误删。
