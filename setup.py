@@ -10,7 +10,7 @@ URL = "https://github.com/pyted/binance_interface"
 EMAIL = 'pyted@outlook.com'
 AUTHOR = 'pyted'
 REQUIRES_PYTHON = '>=3.8.0'
-VERSION = '2.0.4'
+VERSION = '2.0.5'
 
 REQUIRED = [
     'requests',

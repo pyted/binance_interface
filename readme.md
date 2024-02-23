@@ -1,4 +1,4 @@
-## Binance_interface 2.0.4
+## Binance_interface 2.0.5
 
 安装：
 
@@ -58,6 +58,6 @@ pip3 install binance_interface==2.0.3
 - 同步官方文档全部Rest接口
 - 添加代理IP与代理服务器转发功能
 
-### v2.0.4
+### v2.0.5
 
 - 修正candle_map实时K线服务因各个产品的最新K线数据更新时间的不同而造成的candle验证误删。
