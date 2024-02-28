@@ -3,7 +3,7 @@
 安装：
 
 ```cmd
-pip3 install binance_interface==2.0.3
+pip3 install binance_interface --upgrade
 ```
 
 
